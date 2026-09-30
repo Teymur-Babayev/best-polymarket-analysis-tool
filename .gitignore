@@ -1,0 +1,14 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+# optional — project works without venv
+data/
+*.db
+*.db-wal
+*.db-shm
+.pytest_cache/
+.mypy_cache/
+dist/
+build/

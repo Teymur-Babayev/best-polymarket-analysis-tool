@@ -1,0 +1,188 @@
+{% extends "base.html" %}
+{% block title %}Terminal — PolyScripts - Polymarket Analysis{% endblock %}
+{% block body %}
+<header class="topbar">
+  <div class="topbar-left">
+    <div class="brand">
+      <img class="brand-logo" src="/static/img/p-origin-removebg.png" alt="" width="28" height="28">
+      <span class="brand-text">
+        <span class="brand-name">
+          PolyScripts
+          <img class="brand-badge" src="/static/img/polymarket-badge.png?v=term37" alt="Polymarket" title="Powered by Polymarket" width="14" height="14">
+        </span>
+        <span class="brand-sub">Polymarket Analysis</span>
+      </span>
+    </div>
+    <span id="ws-status" class="ws-badge ws-off">Connecting…</span>
+  </div>
+  <div id="oracle-ticker" class="oracle-ticker" aria-label="Live oracle ticker"></div>
+  <nav class="topbar-nav" aria-label="Primary">
+    <a href="/" class="active">Terminal</a>
+    <a href="/history">History</a>
+    <a href="/status">Status</a>
+  </nav>
+</header>
+
+<main class="app-layout" id="app-layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-head">
+      <span>Markets</span>
+      <span class="sidebar-head-hint">Live</span>
+    </div>
+    <div id="market-nav" class="market-nav"></div>
+  </aside>
+  <div class="sidebar-backdrop" id="sidebar-backdrop" hidden></div>
+
+  <section class="workspace">
+    <div class="workspace-lead">
+    <div class="workspace-toolbar">
+      <div class="workspace-identity">
+        <div class="workspace-title-row">
+          <button
+            type="button"
+            id="sidebar-toggle"
+            class="sidebar-toggle"
+            title="Hide markets panel"
+            aria-label="Hide markets panel"
+            aria-expanded="true"
+          ><span class="sidebar-toggle-icon" aria-hidden="true">‹</span><span class="sidebar-toggle-text">Markets</span></button>
+          <h1 id="sel-title">BTC Up or Down · 5m</h1>
+        </div>
+        <p id="window-range" class="window-range">—</p>
+      </div>
+      <div class="slug-row" role="group" aria-label="Window controls">
+        <label for="slug-select" class="slug-label">Window</label>
+        <select id="slug-select" class="slug-select"></select>
+        <input
+          id="slug-input"
+          class="slug-input"
+          type="text"
+          spellcheck="false"
+          autocomplete="off"
+          placeholder="btc-updown-5m-…"
+        />
+        <button id="slug-load-btn" class="slug-load-btn" type="button">Load</button>
+        <button id="slug-live-btn" class="slug-live-btn is-live" type="button">Live</button>
+      </div>
+    </div>
+
+    <div class="metric-hud" aria-label="Market metrics">
+      <div class="price-metrics">
+        <div class="price-block initial-block">
+          <div class="price-label">Initial TWAP</div>
+          <div id="hero-initial" class="price-value" title="TWAP initial (window open)">—</div>
+        </div>
+        <div class="hud-divider" aria-hidden="true"></div>
+        <div class="price-block current-block">
+          <div class="price-label current-label">Chainlink</div>
+          <div id="hero-current" class="price-value current-value">—</div>
+        </div>
+        <div class="hud-divider" aria-hidden="true"></div>
+        <div class="price-block twap-block">
+          <div class="price-label twap-label" id="hero-twap-label">TWAP 60s</div>
+          <div id="hero-twap" class="price-value twap-value" title="Chainlink TWAP via Polymarket RTDS">—</div>
+        </div>
+        <div class="hud-divider" aria-hidden="true"></div>
+        <div class="price-block diff-block">
+          <div class="price-label">Difference</div>
+          <div id="hero-diff" class="price-delta" title="Current TWAP − initial TWAP">—</div>
+        </div>
+      </div>
+      <div id="countdown" class="countdown poly-countdown">
+        <div class="countdown-caption">Time left</div>
+        <div id="countdown-timer" class="countdown-timer">
+          <div class="countdown-unit">
+            <span id="countdown-mins" class="countdown-digit">—</span>
+            <span class="countdown-label">MIN</span>
+          </div>
+          <span class="countdown-sep" aria-hidden="true">:</span>
+          <div class="countdown-unit">
+            <span id="countdown-secs" class="countdown-digit">—</span>
+            <span class="countdown-label">SEC</span>
+          </div>
+        </div>
+        <span id="countdown-outcome" class="countdown-outcome" hidden></span>
+      </div>
+    </div>
+    </div>
+
+    <div class="chart-panel oracle-panel">
+      <div class="chart-head">
+        <div class="chart-head-left">
+          <span id="oracle-chart-title" class="chart-title">Price</span>
+          <div class="chart-legend" aria-hidden="true">
+            <span class="legend-item legend-binance">Binance</span>
+            <span class="legend-item legend-chainlink">Chainlink</span>
+            <span class="legend-item legend-twap" id="legend-twap">TWAP 60s</span>
+            <span class="legend-item legend-target">Target</span>
+          </div>
+        </div>
+        <a
+          id="poly-link-oracle"
+          class="poly-market-btn"
+          href="#"
+          target="_blank"
+          rel="noopener noreferrer"
+        >Open market ↗</a>
+      </div>
+      <div id="chart-oracle" class="chart-box"></div>
+    </div>
+
+    <div class="chart-panel">
+      <div class="chart-head">
+        <div class="chart-head-left">
+          <span class="chart-title">Probability</span>
+          <div class="chart-legend" aria-hidden="true">
+            <span class="legend-item legend-yes">YES ask</span>
+            <span class="legend-item legend-no">NO ask</span>
+          </div>
+        </div>
+        <div class="chart-head-right">
+          <span id="prob-last" class="chart-val">—</span>
+          <a
+            id="poly-link-prob"
+            class="poly-market-btn"
+            href="#"
+            target="_blank"
+            rel="noopener noreferrer"
+          >Open market ↗</a>
+        </div>
+      </div>
+      <div id="chart-prob" class="chart-box chart-box-sm"></div>
+    </div>
+  </section>
+
+  <aside class="metrics-panel preview-panel">
+    <div class="preview-head">
+      <div class="preview-title">Recent markets</div>
+      <div id="preview-subtitle" class="preview-sub">BTC · 5m</div>
+      <div class="preview-pager">
+        <button type="button" id="preview-prev" class="btn-pager preview-pager-btn" disabled title="Older markets" aria-label="Older markets">&lt;&lt;</button>
+        <span id="preview-page-label" class="preview-page-label">—</span>
+        <button type="button" id="preview-next" class="btn-pager preview-pager-btn" disabled title="Newer markets" aria-label="Newer markets">&gt;&gt;</button>
+      </div>
+    </div>
+    <div id="recent-previews" class="preview-list">
+      <div class="preview-empty">Select a market…</div>
+    </div>
+  </aside>
+</main>
+
+<script>
+  window.PM_CONFIG = {
+    assets: {{ assets | tojson }},
+    intervals: {{ intervals | tojson }},
+    intervalSeconds: {{ interval_seconds | tojson }},
+    preselect: {
+      asset: {{ preselect_asset|default("BTC") | tojson }},
+      interval: {{ preselect_interval|default("5m") | tojson }},
+    },
+  };
+</script>
+{% endblock %}
+{% block scripts %}
+<script src="/static/js/lib/format.js?v=term37"></script>
+<script src="/static/js/lib/ws.js?v=term37"></script>
+<script src="/static/js/lib/charts.js?v=term37"></script>
+<script src="/static/js/dashboard.js?v=term37"></script>
+{% endblock %}

@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block title %}History - Polymarket Analysis{% endblock %}
+{% block body %}
+<header class="topbar">
+  <div class="topbar-left">
+    <div class="brand">
+      <img class="brand-logo" src="/static/img/p-origin-removebg.png" alt="" width="28" height="28">
+      <span class="brand-text">
+        <span class="brand-name">PolyScripts</span>
+        <span class="brand-sub">Polymarket Analysis</span>
+      </span>
+    </div>
+  </div>
+  <nav class="topbar-nav">
+    <a href="/">Terminal</a>
+    <a href="/history" class="active">History</a>
+    <a href="/status">Status</a>
+  </nav>
+</header>
+<div class="page-container">
+  <div class="history-head">
+    <h1>Database History</h1>
+    <button type="button" id="clear-db-btn" class="btn-danger">Clear Database</button>
+  </div>
+
+  <div class="history-stats" id="history-stats">Loading counts…</div>
+
+  <div class="history-tabs" id="history-tabs">
+    <button type="button" class="history-tab active" data-tab="windows">Windows</button>
+    <button type="button" class="history-tab" data-tab="binance">Binance</button>
+    <button type="button" class="history-tab" data-tab="oracle">Chainlink / Oracle</button>
+    <button type="button" class="history-tab" data-tab="clob">Orderbook (CLOB)</button>
+  </div>
+
+  <div class="history-toolbar">
+    <div class="filters" id="history-filters">
+      <select id="filter-asset">
+        <option value="">All assets</option>
+        <option>BTC</option><option>ETH</option><option>SOL</option>
+      </select>
+      <select id="filter-interval">
+        <option value="">All intervals</option>
+        <option>5m</option><option>15m</option>
+      </select>
+      <select id="filter-side" class="hidden">
+        <option value="">All sides</option>
+        <option>YES</option><option>NO</option>
+      </select>
+      <select id="filter-source" class="hidden">
+        <option value="">All sources</option>
+        <option value="chainlink">chainlink</option>
+        <option value="binance">binance</option>
+        <option value="binance_rest">binance_rest</option>
+      </select>
+    </div>
+    <div class="history-pager" id="history-pager">
+      <button type="button" id="page-prev" class="btn-pager">Prev</button>
+      <span id="page-label">—</span>
+      <button type="button" id="page-next" class="btn-pager">Next</button>
+    </div>
+  </div>
+
+  <div class="table-wrap">
+    <table class="data-table" id="history-table">
+      <thead></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <div class="chart-panel" id="replay-panel" style="margin-top:1rem">
+    <div class="chart-head"><span>Window Replay</span></div>
+    <div id="replay-oracle" class="chart-box"></div>
+    <div id="replay-prob" class="chart-box chart-box-sm"></div>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="/static/js/lib/format.js"></script>
+<script src="/static/js/lib/charts.js?v=term37"></script>
+<script src="/static/js/history.js?v=term37"></script>
+{% endblock %}
